@@ -1,51 +1,32 @@
-BUILD_TIME:=$(shell date "+%Y%m%d-%H%M%S")
-
-VERSION=$(shell git describe --tags --always --dirty --dirty="-dev")
-ARCH=$(shell go env GOARCH)
-MAIN_FILE=main.go
-BINARY_DIR:=cmd
-BINARY_OUT_LINUX:=$(BINARY_DIR)/linux/$(ARCH)/
-BINARY_OUT_MACOS:=$(BINARY_DIR)/macos/$(ARCH)/
-BINARY_OUT_WIN:=$(BINARY_DIR)/win/$(ARCH)/
-MOD=mod2
-
-ifeq ($(OS),Windows_NT)
- BINARY_OUT_DIR=$(BINARY_OUT_WIN)
- PLATFORM="windows"
-else
- ifeq ($(shell uname),Darwin)
-  BINARY_OUT_DIR=$(BINARY_OUT_MACOS)
-  PLATFORM="macos"
- else
-  BINARY_OUT_DIR=$(BINARY_OUT_LINUX)
-  PLATFORM="linux"
- endif
+include ./Makefile.common
+# Ensure GOPATH is set before running build process.
+ifeq "$(GOPATH)" ""
+  $(error Please set the environment variable GOPATH before running `make`)
 endif
-define get_binary_out
-${BINARY_OUT_DIR}$(1)
-endef
-define get_main
-$(1)/$(MAIN_FILE)
-endef
 
+TEST_LDFLAGS :=
+EXTRA_TEST_ARGS :=
+ifeq "$(DEBUG)" "1"
+  EXTRA_TEST_ARGS= -v
+endif
 all:
 	@mkdir -p ${BINARY_OUT_DIR}
-	@make 2
+	@make build MOD=mod2
 release: build
 
 build:
 	GOOS=${PLATFORM} GOARCH=${ARCH} CGO_ENABLED=1 go build -mod=mod  ${GO_VERSION_FLAG} -v -o $(call get_binary_out,$(MOD)) $(call get_main,$(MOD))
-2:
-	MOD=mod2
-	@make build
 
 push: build
 
-test:
-	go test -v ./...
+test: build
+	@echo "Running test"
+	GOTEST='$(GOTEST)' TEST_LDFLAGS='$(TEST_LDFLAGS)' EXTRA_TEST_ARGS='$(EXTRA_TEST_ARGS)' TARGET_PATH='.' ./tools/test.sh
 clean:
 	go clean
 
+run:
+	./$(call get_binary_out,$(MOD)) --v 2 --logtostderr true
 version:
 	@echo ${VERSION}
 

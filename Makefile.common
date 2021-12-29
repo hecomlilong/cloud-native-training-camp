@@ -1,0 +1,36 @@
+GOPATH ?= $(shell go env GOPATH)
+P=8
+GO              := GO111MODULE=on go
+GOBUILD         := $(GO) build $(BUILD_FLAG) -tags codes
+GOTEST          := $(GO) test -p $(P)
+GOTOOL          := $(GO) tool
+
+BUILD_TIME:=$(shell date "+%Y%m%d-%H%M%S")
+
+VERSION=$(shell git describe --tags --always --dirty --dirty="-dev")
+ARCH=$(shell go env GOARCH)
+MAIN_FILE=main.go
+BINARY_DIR:=cmd
+BINARY_OUT_LINUX:=$(BINARY_DIR)/linux/$(ARCH)/
+BINARY_OUT_MACOS:=$(BINARY_DIR)/macos/$(ARCH)/
+BINARY_OUT_WIN:=$(BINARY_DIR)/win/$(ARCH)/
+MOD=mod2
+
+ifeq ($(OS),Windows_NT)
+ BINARY_OUT_DIR=$(BINARY_OUT_WIN)
+ PLATFORM="windows"
+else
+ ifeq ($(shell uname),Darwin)
+  BINARY_OUT_DIR=$(BINARY_OUT_MACOS)
+  PLATFORM="macos"
+ else
+  BINARY_OUT_DIR=$(BINARY_OUT_LINUX)
+  PLATFORM="linux"
+ endif
+endif
+define get_binary_out
+${BINARY_OUT_DIR}$(1)
+endef
+define get_main
+$(1)/$(MAIN_FILE)
+endef

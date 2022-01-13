@@ -12,6 +12,7 @@ RUN go build -mod=mod -o http-server
 
 # final (target) stage
 
-FROM scratch
+FROM alpine
 COPY --from=builder /app/http-server /
+RUN apk add libc6-compat
 ENTRYPOINT ["/http-server", "--v","2","--logtostderr","true"]

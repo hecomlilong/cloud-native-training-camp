@@ -3,9 +3,11 @@ include ./Makefile.common
 ifeq "$(GOPATH)" ""
   $(error Please set the environment variable GOPATH before running `make`)
 endif
-COMPILE_TIME = $(shell date +"%Y-%M-%d-%H-%M-%S")
-CFLAGS += $(COMPILE_TIME)
+COMPILE_TIME = $(shell date +"%Y-%m-%d")
+GIT_HASH = $(shell git log -n1 --format=format:"%h")
+CFLAGS += $(COMPILE_TIME)-$(GIT_HASH)
 
+TAG = cncamp-lilong-${CFLAGS}
 TEST_LDFLAGS :=
 EXTRA_TEST_ARGS :=
 ifeq "$(DEBUG)" "1"
@@ -29,9 +31,12 @@ clean:
 
 run:
 	./$(call get_binary_out,$(MOD)) --v 2 --logtostderr true
-docker: build
+docker-build: build
 	cp mod2/main.go build/ && cp go.* build/
 	cd build && docker build . -t cncamp-lilong-${CFLAGS}
+docker-push: docker-build
+	docker tag ${TAG} swiftabc/${TAG}
+	docker push swiftabc/${TAG}
 version:
 	@echo ${VERSION}
 

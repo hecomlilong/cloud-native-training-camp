@@ -35,8 +35,8 @@ docker-build: build
 	cp mod2/main.go build/ && cp go.* build/
 	cd build && docker build . -t cncamp-lilong-${CFLAGS}
 docker-push: docker-build
-	docker tag ${TAG} swiftabc/${TAG}
-	docker push swiftabc/${TAG}
+	docker tag ${TAG} $(DOCKER_ACCOUNT)/${TAG}
+	docker push $(DOCKER_ACCOUNT)/${TAG}
 version:
 	@echo ${VERSION}
 

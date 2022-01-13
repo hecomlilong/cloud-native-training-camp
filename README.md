@@ -13,4 +13,3 @@ DEBUG=1 make test
 执行 make docker-build 执行镜像编译
 # 镜像推送（默认推送到docker.io) 需要提前docker login docker.io
 执行 DOCKER_ACCOUNT=[swiftabc] make docker-push 执行镜像推送（需要将swiftabc替换为docker 账号）
-

@@ -37,6 +37,8 @@ docker-build: build
 docker-push: docker-build
 	docker tag ${TAG} $(DOCKER_ACCOUNT)/${TAG}
 	docker push $(DOCKER_ACCOUNT)/${TAG}
+docker-run: docker-build
+	docker run -d ${TAG}
 version:
 	@echo ${VERSION}
 

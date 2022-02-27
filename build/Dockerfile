@@ -3,12 +3,13 @@ FROM golang:1.17 as builder
 # first (build) stage
 
 ENV GO111MODULE=on
+ENV GOMOD=/app/go.mod
 WORKDIR /app
-COPY main.go .
+COPY mod2 .
 COPY pkg .
 COPY go.mod .
-RUN go mod download
-RUN go build -mod=mod -o http-server
+RUN go mod tidy
+RUN go build -o http-server mod2/main.go
 
 # final (target) stage
 

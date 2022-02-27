@@ -1,0 +1,29 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx",
+    "namespace": "default",
+    "selfLink": "/api/v1/namespaces/default/services/nginx"
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "tcp",
+        "protocol": "TCP",
+        "port": 80,
+        "targetPort": 80,
+        "nodePort": 32151 
+      }
+    ],
+    "selector": {
+      "run": "nginx"
+    },
+    "type": "NodePort",
+    "sessionAffinity": "None",
+    "externalTrafficPolicy": "Cluster"
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}

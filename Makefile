@@ -30,9 +30,9 @@ clean:
 	go clean
 
 run:
-	./$(call get_binary_out,$(MOD)) --v 2 --logtostderr true
+	./$(call get_binary_out,$(MOD)) --config=file:///./config/mod8.ini --v=2 --logtostderr=true
 docker-build: build
-	cp mod2/main.go build/ && cp go.* build/
+	cp mod2/main.go build/ && cp go.* build/ && cp -R pkg build/
 	cd build && docker build . -t cncamp-lilong-${CFLAGS}
 docker-push: docker-build
 	docker tag ${TAG} $(DOCKER_ACCOUNT)/${TAG}

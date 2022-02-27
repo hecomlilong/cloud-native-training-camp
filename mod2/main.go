@@ -2,17 +2,27 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/golang/glog"
 	"github.com/hecomlilong/cloud-native-training-camp/pkg/utils"
+	configObj "github.com/hecomlilong/cloud-native-training-camp/pkg/utils/config"
 )
+
+var config = flag.String("config", "", "config as uri format")
 
 func main() {
 	flag.Parse()
+	err := configObj.InitConfig(*config)
+	if err != nil {
+		fmt.Printf("config err:%v\n", err)
+		return
+	}
 	defer glog.Flush()
 	s := &http.Server{
 		Addr:           ":1880",
@@ -21,19 +31,46 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	glog.V(2).Info("Starting http server...")
-	log.Fatal(s.ListenAndServe())
+	utils.GlogWrapper.Info("Starting http server...")
+	var graceExit string
+	errChan := make(chan error)
+	exitChan := make(chan string)
+	go func() {
+		err = s.ListenAndServe()
+		errChan <- err
+	}()
+	// 创建一个os.Signal channel
+	sigs := make(chan os.Signal, 1)
+	//注册要接收的信号，syscall.SIGINT:接收ctrl+c ,syscall.SIGTERM:程序退出
+	//信号没有信号参数表示接收所有的信号
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	//此goroutine为执行阻塞接收信号。一旦有了它，它就会打印出来。
+	//然后通知程序可以完成。
+	go func() {
+		sig := <-sigs
+		utils.GlogWrapper.Warningf("get signal:%v", sig)
+		exitChan <- "gracefully exit"
+	}()
+
+	select {
+	case err = <-errChan:
+		utils.GlogWrapper.Warningf("server err:%v", err)
+		return
+	case graceExit = <-exitChan:
+		utils.GlogWrapper.Infof("msg:%v", graceExit)
+		return
+	}
 }
 
 type Handler struct{}
 
 func (p *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if w == nil {
-		glog.Warning("Handler.ServeHTTP got nil ResponseWriter")
+		utils.GlogWrapper.Warning("Handler.ServeHTTP got nil ResponseWriter")
 		return
 	}
 	if r == nil {
-		glog.Warning("Handler.ServeHTTP got nil Request")
+		utils.GlogWrapper.Warning("Handler.ServeHTTP got nil Request")
 	}
 	p.HeaderHandler(w, r)
 	p.VersionHandler(w, r)
@@ -57,8 +94,8 @@ func (p *Handler) VersionHandler(w http.ResponseWriter, r *http.Request) {
 
 // Server 端记录访问日志包括客户端 IP，HTTP 返回码，输出到 server 端的标准输出
 func (p *Handler) StdoutHandler(w http.ResponseWriter, r *http.Request, statusCode int) {
-	glog.V(2).Infof("client ip address:%s", utils.FindClientIp(r))
-	glog.V(2).Infof("http code:%d", statusCode)
+	utils.GlogWrapper.Infof("client ip address:%s", utils.FindClientIp(r))
+	utils.GlogWrapper.Infof("http code:%d", statusCode)
 }
 
 // 当访问 localhost/healthz 时，应返回 200

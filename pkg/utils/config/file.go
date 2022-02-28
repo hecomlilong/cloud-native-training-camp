@@ -11,8 +11,16 @@ type FileConfig struct {
 	Cfg *ini.File
 }
 
+func DealWithPath(src string) string {
+	if strings.HasPrefix(src, "//") {
+		return src[1:]
+	}
+	res := strings.TrimLeft(src, "/")
+	return res
+}
+
 func NewFileConfig(path string) (*FileConfig, error) {
-	cfg, err := ini.Load(strings.TrimLeft(path, "/"))
+	cfg, err := ini.Load(DealWithPath(path))
 	if err != nil {
 		return nil, errors.Wrap(err, "Fail to read file")
 	}

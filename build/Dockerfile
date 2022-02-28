@@ -7,8 +7,8 @@ WORKDIR /app
 COPY main.go .
 COPY pkg .
 COPY go.mod .
-RUN go mod download
-RUN go build -mod=mod -o http-server
+RUN go mod tidy
+RUN go build -o http-server
 
 # final (target) stage
 

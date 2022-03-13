@@ -1,3 +1,5 @@
+# 安装grafana和prometheus
+[安装grafana和prometheus](https://github.com/hecomlilong/cloud-native-training-camp/mod10/grafana-prometheus.md)
 # 编译httpserver
 ```
 MOD=mod10 make build
@@ -17,7 +19,7 @@ MOD=mod10 DOCKER_ACCOUNT=swiftabc make docker-push
 sudo kubectl apply -f mod10/httpserver.yaml
 ```
 
-#请求接口
+# 请求接口
 ```
 pod_ip=$(sudo kubectl get po -o=jsonpath='{.items[?(@.metadata.labels.app=="httpserver")].status.podIP}')
 

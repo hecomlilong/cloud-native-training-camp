@@ -8,7 +8,7 @@ GIT_HASH = $(shell git log -n1 --format=format:"%h")
 CFLAGS += $(COMPILE_TIME)-$(GIT_HASH)
 
 binary = $(call get_binary_out,$(MOD),$(SURFIX))
-TAG = cncamp-lilong-${SURFIX}-${CFLAGS}
+TAG = cncamp-lilong-${MOD}-${SURFIX}-${CFLAGS}
 TEST_LDFLAGS :=
 EXTRA_TEST_ARGS :=
 ifeq "$(DEBUG)" "1"

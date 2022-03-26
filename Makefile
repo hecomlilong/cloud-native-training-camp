@@ -7,7 +7,8 @@ COMPILE_TIME = $(shell date +"%Y-%m-%d")
 GIT_HASH = $(shell git log -n1 --format=format:"%h")
 CFLAGS += $(COMPILE_TIME)-$(GIT_HASH)
 
-TAG = cncamp-lilong-${CFLAGS}
+binary = $(call get_binary_out,$(MOD),$(SURFIX))
+TAG = cncamp-lilong-${binary}-${CFLAGS}
 TEST_LDFLAGS :=
 EXTRA_TEST_ARGS :=
 ifeq "$(DEBUG)" "1"
@@ -19,7 +20,7 @@ all:
 release: build
 
 build:
-	GOOS=${PLATFORM} GOARCH=${ARCH} CGO_ENABLED=1 go build -mod=mod  ${GO_VERSION_FLAG} -v -o $(call get_binary_out,$(MOD)) $(call get_main,$(MOD))
+	GOOS=${PLATFORM} GOARCH=${ARCH} CGO_ENABLED=1 go build -mod=mod  ${GO_VERSION_FLAG} -v -o $(call get_binary_out,$(MOD),$(SURFIX)) $(call get_main,$(MOD))
 
 push: build
 
@@ -30,11 +31,11 @@ clean:
 	go clean
 
 run:
-	./$(call get_binary_out,$(MOD)) --config=file:///./config/mod8.ini --v=2 --logtostderr=true
+	./${binary} --config=file:///./config/mod8.ini --v=2 --logtostderr=true
 docker-build: build
-	cp $(call get_binary_out,$(MOD)) build/http-server
+	cp ${binary} build/http-server
 	cp -R config build/
-	cd build && docker build . -t cncamp-lilong-${CFLAGS}
+	cd build && docker build . -t ${TAG}
 docker-push: docker-build
 	docker tag ${TAG} $(DOCKER_ACCOUNT)/${TAG}
 	docker push $(DOCKER_ACCOUNT)/${TAG}

@@ -9,7 +9,10 @@ BUILD_TIME:=$(shell date "+%Y%m%d-%H%M%S")
 
 VERSION=$(shell git describe --tags --always --dirty --dirty="-dev")
 ARCH=$(shell go env GOARCH)
-MAIN_FILE=main.go
+empty :=
+ifeq ($(MAIN_FILE),$(empty))
+	MAIN_FILE=main.go
+endif
 BINARY_DIR:=cmd
 BINARY_OUT_LINUX:=$(BINARY_DIR)/linux/$(ARCH)/
 BINARY_OUT_MACOS:=$(BINARY_DIR)/macos/$(ARCH)/
@@ -28,7 +31,7 @@ else
  endif
 endif
 define get_binary_out
-${BINARY_OUT_DIR}$(1)
+${BINARY_OUT_DIR}$(1)$(2)
 endef
 define get_main
 $(1)/$(MAIN_FILE)

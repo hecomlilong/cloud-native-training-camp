@@ -50,9 +50,12 @@ sudo kubectl apply -f istio-specs.yml -n istio-gw
 # 安装jaeger
 ```
 sudo kubectl apply -f jaeger.yml
-sudo kubectl edit configmap istio -n istio-system
 ```
 # 设置采样频率tracing.sampling=100
+```
+sudo kubectl edit configmap istio -n istio-system
+```
+![修改jaeger采样频率](./tracing.sampling.png "tracing sampling")
 
 # 查看ingress ip
 ```
@@ -69,4 +72,4 @@ done
 ```
 istioctl dashboard jaeger
 ```
-![jaeger 面板](https://github.com/hecomlilong/cloud-native-training-camp/mod12/jaeger.png "jaeger dashboard")
+![jaeger 面板](./jaeger.png "jaeger dashboard")

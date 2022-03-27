@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service2
+  template:
+    metadata:
+      labels:
+        app: service2
+    spec:
+      containers:
+        - name: service2
+          imagePullPolicy: Always
+          image: docker.io/swiftabc/cncamp-lilong-mod12-service-2-2022-03-26-4f938b1
+          ports:
+            - containerPort: 1880
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service2
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-service2
+      port: 80
+      protocol: TCP
+      targetPort: 1880
+  selector:
+    app: service2

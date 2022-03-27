@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service-vs
+spec:
+  gateways:
+    - service-gw
+  hosts:
+    - '*'
+  http:
+  - match:
+      - port: 443
+      - uri:
+          exact: "/service1/hello"
+    rewrite:
+      uri: "/hello"
+    route:
+    - destination:
+        host: service1
+        port:
+          number: 80
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: service-gw
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - '*'
+      port:
+        name: http-service1
+        number: 443
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: cncamp-tls

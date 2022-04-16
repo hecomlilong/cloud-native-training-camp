@@ -1,5 +1,5 @@
 # 安装grafana和prometheus
-[安装grafana和prometheus](https://github.com/hecomlilong/cloud-native-training-camp/mod10/grafana-prometheus.md)
+[安装grafana和prometheus](https://github.com/hecomlilong/cloud-native-training-camp/blob/master/mod10/grafana-prometheus.md)
 # 编译httpserver
 ```
 MOD=mod10 make build
